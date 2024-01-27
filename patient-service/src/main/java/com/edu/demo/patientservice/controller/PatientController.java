@@ -1,6 +1,8 @@
 package com.edu.demo.patientservice.controller;
 
 import com.edu.demo.patientservice.entity.Patient;
+import com.edu.demo.patientservice.event.ProducerEvent;
+import com.edu.demo.patientservice.payload.DataEvent;
 import com.edu.demo.patientservice.service.PatientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import java.util.List;
 public class PatientController {
 
     private final PatientService patientService;
+    private final ProducerEvent producerEvent;
 
     @GetMapping("/")
     @ResponseStatus(HttpStatus.FOUND)
@@ -30,6 +33,10 @@ public class PatientController {
     @ResponseStatus(HttpStatus.CREATED)
     String savePatient(@RequestBody Patient patient)
     {
+        producerEvent.sendMessage(DataEvent.builder()
+                .eventData(patient)
+                .eventMsg("new Patient added !")
+                .build());
         return patientService.addPatient(patient);
     }
 
